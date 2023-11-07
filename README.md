@@ -21,4 +21,5 @@ Bremge generates the scattering angles of the electron and photon with respect t
 In the program: bremge_to_hepmc3.cxx they are reversed to be compatible with EIC geometry simulation programs.  
 
 Validation
-The validation is performed by comparison of the resulting particle distributions with GETaLM beam effects simulation. 
+
+* is performed by comparison of the resulting particle distributions with GETaLM beam effects simulation. 
