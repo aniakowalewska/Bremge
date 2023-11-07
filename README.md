@@ -3,6 +3,11 @@ Monte Carlo generator of high energy electron-proton and electron-nucleus bremss
 
 The structure of the generator is described in a pdf file: bremge_short_description.pdf . It was written as a FORTRAN 77 package. 
 
-No installation is necessary. 
+After downloading the directory the compilation is needed: gfortran bremge.F brebldt.F -o main main.F
 In order to run the generator inside eic-environment just execute:
 ./main 
+
+
+* brebldt.F - the cuts are set
+* number of events are set
+* fort.7 - is the output of the generation: eg0, tgx, tgy, ee, tex, tey
