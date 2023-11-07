@@ -10,4 +10,6 @@ In order to run the generator inside eic-environment just execute:
 
 * brebldt.F - the cuts are set
 * number of events are set
-* fort.7 - is the output of the generation: eg0, tgx, tgy, ee, tex, tey
+* fort.7 - is the output of the generation: eg0, ee: photon and electron energy
+                                            tgx, tgy: photon scattering angles
+                                            tex, tey: electron scattering angles
