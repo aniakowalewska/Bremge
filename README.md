@@ -8,10 +8,14 @@ After downloading the directory the compilation is needed: gfortran bremge.F bre
 In order to run the generator inside eic-environment just execute:
 ./main 
 
-
 * brebldt.F - the cuts are set
 * number of events are set
 * fort.7 - is the output of the generation:
 * eg0, ee: photon and electron energy
 * tgx, tgy: photon scattering angles
 * tex, tey: electron scattering angles
+
+hepMC3:
+Bremge generates the scattering angles of the electron and photon with respect to the positive direction of the z-axis. 
+
+In the program: bremge_to_hepmc3.cxx they are reversed to be compatible with EIC geometry simulation programs.  
