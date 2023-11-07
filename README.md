@@ -23,4 +23,4 @@ In the program: bremge_to_hepmc3.cxx they are reversed to be compatible with EIC
 Validation
 
 * is performed by comparison of the resulting particle distributions with GETaLM beam effects simulation.
-* cross-checks: outputs conversion to hepMC3 format: root[0] .x bremge_to_hepmc3_to_root.cxx  
+* cross-checks: outputs conversion to hepMC3 format: root[0] .x bremge_to_hepmc3.cxx  
