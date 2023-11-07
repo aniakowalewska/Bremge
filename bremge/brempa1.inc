@@ -1,0 +1,7 @@
+
+* BS generator limits
+
+      real XEP,YEP,TGMAX,EE0,EP0,EGMIN,EGMAX,ZETGAS
+      integer modebr
+      COMMON/BREMPA1/ XEP,YEP,TGMAX,EE0,EP0,EGMIN,EGMAX,MODEBR,ZETGAS
+

@@ -1,0 +1,160 @@
+      SUBROUTINE BREMGE(EG,TGX,TGY,EE,TEX,TEY)
+#include "brempa1.inc"
+
+#
+      common/BREMPA2/ PI,EMASS,PMASS
+      common/BREMPA3/ FGEGP,EE0M,EHL,DSDUMA,DMIN,DMAX,DMIN2,DMAX2,DU3
+c     COMMON/LUOUT/ SIGTOT,DSDU,U1,U2,U3,U4,DDPR,FI,D,NTRY,Q2M2,SCR,Q2TR
+      COMMON/LUOUT/ SIGTOT,DSDU,DDPR,FI,D,NTRY,Q2M2,SCR,Q2TR
+      DIMENSION EA(2)
+      DOUBLE PRECISION AU1,BU1
+      real U(8),u1,u2,u3,u4,u5,u6,u7,u8
+      common /urn/ u1,u2,u3,u4,u5,u6,u7,u8
+      equivalence (u1,u(1))
+      LOGICAL FIRST
+      SAVE ALR2MB,AL1,AL2,AL3,BE12,BE22,BE32,BCON,SCRMAX,AR28PI
+      DATA ALR2MB/0.579468/,AL1/0.10/,AL2/0.55/,AL3/0.35/
+      DATA B1/6.0/,B2/1.2/,B3/0.3/,BCON/121./,CONV/1.341216E25/
+      DATA FIRST /.TRUE./
+C     INITIALIZATION OF GENERATOR
+      IF(EG.EQ.0. .OR. FIRST) THEN
+       FIRST = .FALSE.
+
+       X2EP=XEP*XEP
+       Y2EP=YEP*YEP
+       XY2EP=X2EP*Y2EP*CONV
+       EE0M = EE0/EMASS
+       DMIN = 0.01
+       DMAX = TGMAX*EE0M + DMIN
+       DMIN2 = DMIN**2
+       DMAX2 = DMAX**2
+       DU3 = (1.+DMAX2)/(DMAX2-DMIN2)
+       IF(MODEBR.EQ.2) THEN
+        FGEGP = 4.*EE0/EMASS
+        Z13 = ZETGAS**0.3333
+        BE12 = (Z13/BCON*B1)**2
+        BE22 = (Z13/BCON*B2)**2
+        BE32 = (Z13/BCON*B3)**2
+        SCRMAX=(AL1/(BE12+1.)+AL2/(BE22+1.)+AL3/(BE32+1.))**2
+       ELSE
+        FGEGP = 4.*EE0/EMASS*EP0/PMASS
+       ENDIF
+       AR28PI = ALR2MB*8./PI
+       EHL = ALOG(EGMAX/EGMIN)
+       SCR = 1.0
+C     ESTIMATE TOTAL CROSS SECTION IN INTERVAL EGMIN,EGMAX USING
+C     SIMPLE TRAPEZ RULE IN LOG(EG)
+       EA(1) = EGMIN
+       EA(2) = EGMAX
+       SIGTOT = 0.
+       DO 1 I=1,2
+        EG = EA(I)
+        EE = EE0- EG
+        EE0EE = EE0/EE
+        IF(MODEBR.EQ.2) THEN
+         WE = (EE0EE + 1./EE0EE -2./3.)*
+     +      (ZETGAS**2*ALOG(184./ZETGAS**0.333)+
+     +      ZETGAS*ALOG(1194./ZETGAS**0.667)) + (ZETGAS**2+ZETGAS)/9.
+        ELSE
+         WE = (EE0EE + 1./EE0EE -2./3.)*
+     +      (ALOG(FGEGP*EE/EG) - 0.5)
+        ENDIF
+        DS = 4.*ALR2MB/EE0EE*WE
+ 1      SIGTOT = SIGTOT + DS
+        SIGTOT = SIGTOT/2.*EHL
+C     SET DENSITY CUT TO 10.*SIGTOT (APPR.10% EFFICIENCY OF GENERATOR)
+        DSDUMA = 10.*SIGTOT
+       ENDIF
+C     GENERATE BREMS EVENT USING RANDOM VARIABLES U1, U2, U3, U4 IN UNIT
+C     HYPERCUBE, WHERE THE BREMS. CROSS SECTION DSIGMA/D4U IS NICELY FLAT
+       NTRY = 0
+ 10    NTRY = NTRY + 1
+       call RANLUX(u,5)
+c     U1 = RNDM2(DDD)
+c     U2 = RNDM2(DDD)
+c     U3 = RNDM2(DDD)
+c     U4 = RNDM2(DDD)
+c     U5 = RNDM2(DDD)
+C     TRANSFORMATION FROM U1,..U4 TO THE 'NATURAL' VARIABLES FI, DDPR, D, EG
+       EG = EGMIN*EXP(U4*EHL)
+       EE = EE0 - EG
+       EGEE = EG/EE
+       EEM = EE/EMASS
+       XI2 = EG*EGEE/EE0*.5
+       D = SQRT((U3+DMIN2*DU3)/(DU3-U3))
+       D21 = D*D+1.
+       DFIM = D21*EGEE/FGEGP
+       FIM = DFIM/D
+       PIFIM = ALOG(1.+PI/FIM)
+       FI = FIM*(EXP(U2*PIFIM)-1.)
+       DFIFIM = (FI+FIM)*D
+       AU1 = (DMAX-D)/DFIFIM
+       AU1 = DATAN(AU1)
+       BU1 = (D-DMIN)/DFIFIM
+       BU1 = DATAN(BU1)
+       DDPR = DFIFIM*DTAN(U1*(BU1+AU1)-AU1)
+       DDPR2 = DDPR*DDPR
+       YAFIU = EHL*D21*D21*PIFIM*
+     +    (BU1+AU1)*(DFIFIM*DFIFIM+DDPR2)/(2.*(1.+DMIN2)*D*D*DU3)
+C     (TRUE YAFIU = YAFIU *2.*EG/(EE0M*EEM))
+C     
+C     CALCULATE DSIGMA/DFI/DTHE/DTHG/DEG (=DSDFI)
+       DPR = D - DDPR
+       DMDPR = D*DPR
+       DPR21 = DPR*DPR +1.
+       DDPR21 = D21*DPR21
+       WQ = (-D21+EE0/EE*DPR21)/FGEGP
+       Q2M2 = WQ*WQ + DDPR2
+       WW0 = DDPR*(1.-DMDPR)/DDPR21
+       WW0 = WW0*WW0 + XI2*DDPR2/DDPR21
+       WW1 = (1.+XI2)/DDPR21
+       IF(FI.LE.0.01) THEN
+        WFI = DMDPR*FI*FI
+       ELSE
+        WFI = DMDPR*2.*(1.-COS(FI))
+       ENDIF
+       Q2M2 = (Q2M2 + WFI)
+       Q2TR = WFI+DDPR2
+C     CHOOSE TYPE OF PROCESS
+       IF(MODEBR.EQ.2) THEN
+        SCR = Q2M2* (AL1/(BE12+Q2M2)+AL2/(BE22+Q2M2)+AL3/(BE32+Q2M2))
+        SCR = SCR**2
+        call RANLUX(u,1)
+        IF(u1*SCRMAX .GT. SCR) GOTO 10
+       ENDIF
+       DSDFI = AR28PI*DMDPR*(WW0+WW1*WFI)/Q2M2/Q2M2
+C     (TRUE DSDFI = DSDFI/EG*EEM*EEM)
+C     CHANGE D,DDPR TO THG,THE; FACTOR 2. ACCOUNTS FOR FI>PI
+C     AND MULTIPLY BY JACOBIAN AT LAST
+       DSDU = DSDFI*2.*EE/EE0*YAFIU
+       IF(DSDU.LT.DSDUMA*U5) GOTO 10
+C     CALCULATE ANGLES IN DETECTOR FRAME
+       call RANLUX(u,2)
+c     U6 = RNDM2(DDD)
+c     U7 = RNDM2(DDD)
+       TG = D/EE0M
+       TE = DPR/EEM
+       TX = TE*SIN(FI)
+       IF(U1.GT.0.5) TX = -TX
+       TY =-TE*COS(FI)+TG
+c     PHI = 2.*PI*U7
+       PHI = 2.*PI*U2
+       CPHI = COS(PHI)
+       SPHI = SIN(PHI)
+       TGX = -TG*SPHI
+       TGY = TG*CPHI
+       TEX = TX*CPHI-TY*SPHI
+       TEY = TX*SPHI+TY*CPHI
+C     CALCULATE BEAM-SIZE EFFECT
+       IF(MODEBR.EQ.1) THEN
+        FEXP=(X2EP*CPHI*CPHI+Y2EP*SPHI*SPHI)/(XY2EP*Q2TR)
+        IF(FEXP.GT.30) GOTO 30
+        call RANLUX(u,1)
+c     U8= RNDM2(DDD)
+        IF(U1.LT.EXP(-FEXP)) RETURN
+ 30     EE = 0.
+c        eg = -eg
+        RETURN
+       ENDIF
+       RETURN
+       END

@@ -1,0 +1,16 @@
+      PROGRAM test
+*     
+*#include "hbook.inc"      
+*     
+c     CALL hbook_init
+*     
+      COMMON/LUOUT/ SIGTOT,DSDU,DDPR,FI,D,NTRY,Q2M2,SCR,Q2TR
+      call brebldt
+      do i = 1,100
+         call bremge(eg0,tgx,tgy,ee,tex,tey)
+         write(7,*) eg0,tgx,tgy,ee,tex,tey
+c
+         if (i.eq.1) print*,'Sig_tot = ',sigtot
+      enddo
+
+      END
