@@ -23,6 +23,7 @@ In the program: bremge_to_hepmc3.cxx they are reversed to be compatible with EIC
 Validation
 
 * is performed by comparison of the resulting particle distributions with GETaLM beam effects simulation.
+* 
   theta angle for photons from Bremge and GETaLM
 ![THphot_BvsG](https://github.com/aniakowalewska/Bremge/assets/117586016/7cb78157-c334-4a6b-92bc-977fd5dfa0b3)
 
